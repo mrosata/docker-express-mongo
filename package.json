@@ -1,0 +1,33 @@
+{
+  "name": "docker-express-mongo",
+  "version": "0.0.1",
+  "private": true,
+  "main": "bin/www",
+  "description": "An Express Docker container linked to a mongodb container.",
+  "scripts": {
+    "start": "npm install && nodemon",
+    "docker": "yarn docker:run",
+    "docker:dev": "docker run --name exp-mongo-app --volume `pwd`:/usr/src/app --link exp-mongo-db:mongo -e 'DEVELOPMENT=1' -e 'NODEMON=1' -p 3333:3000 -d mrosata/node-mongo-dev",
+    "docker:mongo": "docker run --name exp-mongo-db -d mongo",
+    "docker:restart": "yarn run docker:stop && yarn docker:rm && yarn docker:run",
+    "docker:run": "yarn run docker:mongo && yarn run docker:dev",
+    "docker:stop": "docker stop exp-mongo-app && docker stop exp-mongo-db",
+    "docker:start": "docker start exp-mongo-db && docker start exp-mongo-app",
+    "docker:rm": "docker rm exp-mongo-app && docker rm exp-mongo-db"
+  },
+  "dependencies": {
+    "body-parser": "~1.15.2",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.2.0",
+    "express": "~4.14.0",
+    "hbs": "~4.0.1",
+    "morgan": "~1.7.0",
+    "serve-favicon": "~2.3.0",
+    "mongodb": "^2.2.12",
+    "mongoose": "^4.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0",
+    "connect-livereload": "^0.6.0"
+  }
+}
