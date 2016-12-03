@@ -5,7 +5,7 @@
   "main": "bin/www",
   "description": "An Express Docker container linked to a mongodb container.",
   "scripts": {
-    "start": "npm install && nodemon",
+    "start": "npm install && node --inspect",
     "docker": "yarn docker:run",
     "docker:dev": "docker run --name exp-mongo-app --volume `pwd`:/usr/src/app --link exp-mongo-db:mongo -e 'DEVELOPMENT=1' -e 'NODEMON=1' -p 3333:3000 -d mrosata/node-mongo-dev",
     "docker:mongo": "docker run --name exp-mongo-db -d mongo",
