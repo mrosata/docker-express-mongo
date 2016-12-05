@@ -1,11 +1,15 @@
-# Extend from node:argon which has node and npm installed.
-FROM node:argon
+# Express Node App
+# Use official nodesource/trusty.
+FROM nodesource/trusty
+
+# Netcat is probably there, but grab anyways. We can use this to send logs.
+RUN apt-get install netcat
 
 # Create the apps directory.
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-# Standard install deps.
+# Note: I might want to remove this as well until it's needed for production.
 COPY package.json /usr/src/app
 RUN npm install
 
@@ -20,4 +24,3 @@ EXPOSE 3000
 
 # And start the app through the package.json run start command.
 CMD ["npm", "start"]
-

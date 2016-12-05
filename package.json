@@ -1,19 +1,26 @@
 {
   "name": "docker-express-mongo",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "main": "bin/www",
   "description": "An Express Docker container linked to a mongodb container.",
   "scripts": {
     "start": "npm install && nodemon",
+
     "docker": "yarn docker:run",
-    "docker:dev": "docker run --name exp-mongo-app --volume `pwd`:/usr/src/app --link exp-mongo-db:mongo -e 'DEVELOPMENT=1' -e 'NODEMON=1' -p 3333:3000 -d mrosata/node-mongo-dev",
+    "docker:dev": "docker run --name exp-mongo-app --volume `pwd`:/usr/src/app --link exp-mongo-db:mongo --link exp-mongo-log:loggly-docker -e 'DEVELOPMENT=1' -e 'NODEMON=1' -e LOGGLY_AUTH_TOKEN=$TOKEN -p 3333:3000 -d mrosata/node-mongo-dev",
     "docker:mongo": "docker run --name exp-mongo-db -d mongo",
-    "docker:restart": "yarn run docker:stop && yarn docker:rm && yarn docker:run",
-    "docker:run": "yarn run docker:mongo && yarn run docker:dev",
-    "docker:stop": "docker stop exp-mongo-app && docker stop exp-mongo-db",
-    "docker:start": "docker start exp-mongo-db && docker start exp-mongo-app",
-    "docker:rm": "docker rm exp-mongo-app && docker rm exp-mongo-db",
+    "docker:loggly": "docker run -d -p 514/udp --name exp-mongo-log -e TOKEN=$TOKEN -e TAG=Docker sendgridlabs/loggly-docker",
+
+    "docker:run": "yarn run docker:mongo ; yarn run docker:loggly ; yarn run docker:dev",
+    "docker:restart": "yarn run docker:stop ; yarn docker:rm ; yarn docker:run",
+    "docker:stop": "docker stop exp-mongo-app ; docker stop exp-mongo-log ; docker stop exp-mongo-db",
+    "docker:start": "docker start exp-mongo-db ; docker start exp-mongo-log ; docker start exp-mongo-app",
+    "docker:rm": "docker rm exp-mongo-app ; docker rm exp-mongo-log ; docker rm exp-mongo-db",
+
+    "docker:kill": "docker stop exp-mongo-db && docker rm exp-mongo-db && docker stop exp-mongo-app && docker rm exp-mongo-app ; docker stop exp-mongo-log ; docker rm exp-mongo-log",
+    "docker:logs": "docker logs exp-mongo-app",
+    "docker:shell": "docker exec -it exp-mongo-app /bin/bash",
 
     "lighthouse": "lighthouse --output=json http://localhost:3333/ --output-path=./validate/log.json"
   },
@@ -27,11 +34,13 @@
     "mongoose": "^4.7.0",
     "morgan": "~1.7.0",
     "serve-favicon": "~2.3.0",
-    "travis-ci": "^2.1.1"
+    "travis-ci": "^2.1.1",
+    "winston": "^2.3.0",
+    "winston-loggly-bulk": "^1.3.4",
+    "nodemon": "^1.11.0"
   },
   "devDependencies": {
-    "connect-livereload": "^0.6.0",
-    "nodemon": "^1.11.0"
+    "connect-livereload": "^0.6.0"
   },
   "optionalDependencies": {
     "lighthouse": "^1.2.2"
